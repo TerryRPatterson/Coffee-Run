@@ -2,6 +2,8 @@
     /* height: auto; */
     overflow-y: scroll;
     text-align: center;
+    list-style: none;
+    flex-grow: 1;
 }
 html{
     height: 100%;

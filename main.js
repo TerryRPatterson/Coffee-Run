@@ -24,33 +24,46 @@ let formSubmission =  function formSubmission(){
     submission["Caffeine"] = form.querySelector("#strengthLevel").value;
     orders[currentOrder] = submission;
     currentOrder ++;
-    updateDisplay();
-    history.setItem("currentOrder",JSON.stringify(currentOrder));
-    history.setItem("orders",JSON.stringify(orders));
+    update();
 };
 
-let updateDisplay = function updateDisplay(){
+let update = function update(){
     let orderDisplay = document.querySelector("#orderDisplay");
     orderDisplay.innerHTML = "";
     if (orders.length > 0){
         orders.forEach(function(item){
-            let displayItem = document.createElement("p");
-            let text = "";
-            for (let entry in item){
-                text += `${entry}: ${item[entry]} \n`;
+            if (item){
+                let button = document.createElement("button");
+                button.setAttribute("label",`Remove Order ${item["Order Number"]}`);
+                button.textContent = `Remove Order ${item["Order Number"]}`;
+                button.classList.add("btn");
+                button.classList.add("btn-default");
+                let displayItem = document.createElement("li");
+                let text = "";
+                for (let entry in item){
+                    text += `${entry}: ${item[entry]} \n`;
+                }
+                button.addEventListener("click",function(){
+                    delete orders[item["Order Number"]];
+                    update();
+                });
+                displayItem.textContent = text;
+                displayItem.setAttribute("id",item["Order Number"]);
+                displayItem.appendChild(button);
+                orderDisplay.appendChild(displayItem);
             }
-            displayItem.textContent = text;
-            orderDisplay.appendChild(displayItem);
         });
     }
     else{
-        let displayItem = document.createElement("p");
+        let displayItem = document.createElement("li");
         displayItem.textContent = "No Orders";
         orderDisplay.appendChild(displayItem);
     }
+    history.setItem("currentOrder",JSON.stringify(currentOrder));
+    history.setItem("orders",JSON.stringify(orders));
 };
 
 let currentOrder = JSON.parse(history.getItem("currentOrder"));
 let orders = JSON.parse(history.getItem("orders"));
-updateDisplay();
+update();
 form.addEventListener("submit",formSubmission);
