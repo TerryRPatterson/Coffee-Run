@@ -38,7 +38,7 @@ let update = function update(){
                 if (order){
                     let button = document.createElement("button");
                     button.setAttribute("label",`Remove Order ${order["emailAddress"]}`);
-                    button.textContent = `Remove Order`;
+                    button.textContent = "Remove Order";
                     button.classList.add("btn");
                     button.classList.add("btn-default");
                     let displayItem = document.createElement("li");
@@ -51,8 +51,8 @@ let update = function update(){
                     }
                     button.addEventListener("click",function(){
                         setTimeout(function () {
-                            $.ajax({"method":"DELETE",
-                            "data":orderName})
+                            $.ajax({type:"DELETE",
+                                url:server + "/" + orderName});
                             update();
                         }, 2000);
 
