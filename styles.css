@@ -1,9 +1,8 @@
 #orderDisplay{
-    /* height: auto; */
+    flex-grow: 1;
+    list-style: none;
     overflow-y: scroll;
     text-align: center;
-    list-style: none;
-    flex-grow: 1;
 }
 html{
     height: 100%;
@@ -14,4 +13,16 @@ body{
     flex-direction: column;
     height: 100%;
     width: 100%;
+}
+.displayItem{
+    display: flex;
+    justify-content: space-between;
+}
+.displayItemInner{
+    margin: 0;
+    padding: 0;
+    width: fit-content;
+}
+.deleting{
+    background-color: rgb(6, 163, 7);
 }
