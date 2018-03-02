@@ -62,9 +62,6 @@ let update = function update(){
         if (Object.keys(orders).length > 0){
             for (let orderName in orders){
                 let order = orders[orderName];
-                let cancelRemoveItem = function cancelRemoveItem(){
-
-                };
                 if (order){
                     let button = document.createElement("button");
                     button.setAttribute("label",`Remove Order ${order["emailAddress"]}`);
@@ -76,12 +73,15 @@ let update = function update(){
                     displayItem.classList.add("displayItem");
                     displayItemInner.classList.add("displayItemInner");
                     let text = "";
-                    for (let entry in order){
-                        if (order.hasOwnProperty(entry) && (entry !== "_id" &&
-                    entry !== "__v")){
-                            text += `${entry}: ${order[entry]} \n`;
-                        }
-                    }
+                    let coffee = order["coffee"];
+                    let emailAddress = order["emailAddress"];
+                    let size = order["size"];
+                    let flavor = order["flavor"];
+                    let strength = order["strength"];
+
+                    text = [`Email Address: ${emailAddress} Coffee: ${coffee} `+
+                            `Flavor: ${flavor} Strength: ${strength} Size: ${size}`];
+
                     button.addEventListener("click", function(){
                         if (!displayItem.classList.contains("deleting")){
                             displayItem.classList.add("deleting");
