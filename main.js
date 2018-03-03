@@ -1,8 +1,12 @@
 /*global  $*/
 /*eslint no-console: 0
 no-unused-vars:0*/
+let required  = Object.defineProperty(self, "required", {
+    get () { throw new TypeError("param is required"); }
+});
 let orders = {};
 let server ="http://dc-coffeerun.herokuapp.com/api/coffeeorders";
+
 let getSelectedSize = function getSelectedSize(){
     for  (let radioButton of form.querySelectorAll(".sizeSelector")){
         if (radioButton.checked === true){
@@ -10,31 +14,51 @@ let getSelectedSize = function getSelectedSize(){
         }
     }
 };
+
+let formValues = function formValues(form = required,
+    callback = required){
+    form = $(form);
+    let formValues = form.serializeArray();
+    formValues.forEach(function(value){
+        callback(value);
+    });
+};
 $(window).on("beforeunload", function(){
-    sessionStorage.setItem("coffee", $("#coffeeOrder").val());
-    sessionStorage.setItem("emailAddress", $("#emailInput").val());
-    sessionStorage.setItem("flavor", $("#flavorShot").val());
-    sessionStorage.setItem("strength",$("#strengthLevel").val());
-    let size = getSelectedSize();
-    console.log("size");
-    sessionStorage.setItem("size",size);
+    formValues(form, function(field){
+        sessionStorage.setItem(field["name"], field["value"]);
+        console.log(field["name"],field["value"]);
+    });
 });
-$(window).on("load",function(){
-    $("#coffeeOrder").val(sessionStorage.getItem("coffee"));
-    $("#emailInput").val(sessionStorage.getItem("emailAddress"));
-    $("#flavorShot").val(sessionStorage.getItem("flavor"));
-    $("#strengthLevel").val(sessionStorage.getItem("strength"));
+$(window).ready(function(){
+    formValues(form,function(field){
+        $(`.form-container [name="${field["name"]}"]`).val(
+            sessionStorage.getItem(field["name"]));
+    });
     let size = sessionStorage.getItem("size");
-    console.log(size);
-    form.querySelectorAll(".sizeSelector").forEach(function(order){
-        if (order.value === size){
-            order.checked = true;
+    form.querySelectorAll(".sizeSelector").forEach(function(field){
+        if (field.value === size){
+            field.checked = true;
         }
     });
-    // sessionStorage.clear();
 });
-
-let form = document.querySelector(".form-container");
+let renderOrderDisplay = function renderOrderDisplay(){
+    for (let orderName in orders){
+        let order = orders[orderName];
+        getOrderTags(order);
+        let displayItem = document.createElement("li");
+        let displayItemInner = document.createElement("p");
+    }
+};
+let createRow = function createRow
+let getOrderTags =  function getOrderTags(order){
+    let coffee = order["coffee"];
+    let emailAddress = order["emailAddress"];
+    let size = order["size"];
+    let flavor = order["flavor"];
+    let strength = order["strength"];
+    return `Email Address: ${emailAddress} Coffee: ${coffee} `+
+            `Flavor: ${flavor} Strength: ${strength} Size: ${size}`;
+}
 
 
 let formSubmission =  function formSubmission(){
@@ -42,14 +66,17 @@ let formSubmission =  function formSubmission(){
     event.preventDefault();
     submission["coffee"] = form.querySelector("#coffeeOrder").value;
     submission["emailAddress"] = form.querySelector("#emailInput").value;
-    submission["size"] = getSelectedSize();
+    submission["size"] = getSelectedSize(form);
     submission["flavor"] = form.querySelector("#flavorShot").value;
     submission["strength"] = form.querySelector("#strengthLevel").value;
     $.post(server,submission);
     setTimeout(function () {
-        $(".form-control").val("");
+        formValues(form,function(field){
+            submission[field["name"]] = field["value"];
+        });
     }, 2000);
     update();
+    $(".form-control").val("");
 };
 
 let update = function update(){
@@ -61,45 +88,38 @@ let update = function update(){
 
         if (Object.keys(orders).length > 0){
             for (let orderName in orders){
-                let order = orders[orderName];
-                if (order){
-                    let button = document.createElement("button");
-                    button.setAttribute("label",`Remove Order ${order["emailAddress"]}`);
-                    button.textContent = "Remove Order";
-                    button.classList.add("btn");
-                    button.classList.add("btn-default");
-                    let displayItem = document.createElement("li");
-                    let displayItemInner = document.createElement("p");
-                    displayItem.classList.add("displayItem");
-                    displayItemInner.classList.add("displayItemInner");
-                    let text = "";
-                    let coffee = order["coffee"];
-                    let emailAddress = order["emailAddress"];
-                    let size = order["size"];
-                    let flavor = order["flavor"];
-                    let strength = order["strength"];
 
-                    text = [`Email Address: ${emailAddress} Coffee: ${coffee} `+
-                            `Flavor: ${flavor} Strength: ${strength} Size: ${size}`];
+                let button = document.createElement("button");
+                button.setAttribute("label",`Remove Order ${order["emailAddress"]}`);
+                button.textContent = "Remove Order";
+                button.classList.add("btn","btn-default");
 
-                    button.addEventListener("click", function(){
-                        if (!displayItem.classList.contains("deleting")){
-                            displayItem.classList.add("deleting");
+                displayItem.classList.add("displayItem");
+                displayItemInner.classList.add("displayItemInner");
+                let text = "";
+
+
+
+
+                button.addEventListener("click", function(){
+                    if (!displayItem.classList.contains("deleting")){
+                        displayItem.classList.add("deleting");
+
+                        deleteTimer = setTimeout(function(){
                             $.ajax({method:"DELETE",
                                 url:server + "/" + orderName});
-                            deleteTimer = setTimeout(update, 2000);
-                        }
-                        else{
-                            clearTimeout(deleteTimer);
-                            displayItem.classList.remove("deleting");
-                            $.post(server, orders[orderName],update);
-                        }
-                    });
-                    displayItemInner.textContent = text;
-                    displayItem.appendChild(displayItemInner);
-                    displayItem.appendChild(button);
-                    orderDisplay.appendChild(displayItem);
-                }
+                            update();
+                        }, 2000);
+                    }
+                    else{
+                        clearTimeout(deleteTimer);
+                        displayItem.classList.remove("deleting");
+                    }
+                });
+                displayItemInner.textContent = text;
+                displayItem.appendChild(displayItemInner);
+                displayItem.appendChild(button);
+                orderDisplay.appendChild(displayItem);
             }
         }
         else{
@@ -111,4 +131,5 @@ let update = function update(){
 };
 
 update();
+let form = document.querySelector(".form-container");
 form.addEventListener("submit",formSubmission);
