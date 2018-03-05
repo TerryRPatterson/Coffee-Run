@@ -36,6 +36,7 @@ $(window).ready(function(){
         }
     });
 });
+
 let createRow = function createRow(order,display){
     let deleteTimer;
     let displayItem = document.createElement("li");
@@ -67,6 +68,7 @@ let createRow = function createRow(order,display){
     displayItem.appendChild(button);
     display.appendChild(displayItem);
 };
+
 
 
 let formSubmission =  function formSubmission(){
