@@ -1,7 +1,6 @@
 /*global  $*/
 /*eslint no-console: 0*/
 let required = () => { throw new Error("param is required"); };
-let orders = {};
 let server ="https://dc-coffeerun.herokuapp.com/api/coffeeorders";
 
 let getSelectedSize = function getSelectedSize(){
@@ -54,8 +53,8 @@ let createRow = function createRow(order,display){
         if (!displayItem.classList.contains("deleting")){
             displayItem.classList.add("deleting");
             deleteTimer = setTimeout(function(){
-                let deletePromise =  $.ajax({method:"DELETE",
-                    url:server + "/" + order["emailAddress"]});
+                let deletePromise =  fetch(server + "/" + order["emailAddress"],
+                    {method:"DELETE"});
                 deletePromise.then(update);
             }, 2000);
         }
@@ -77,35 +76,41 @@ let formSubmission =  function formSubmission(){
         submission[entry.name] = entry.value;
     });
     submission["size"] = getSelectedSize(form);
-    $.post(server,submission);
+    let infoSent = fetch(server,
+        {method: "POST",
+            body: JSON.stringify(submission),
+            headers: new Headers({
+                "Content-Type": "application/json"
+            })
+        });
+    infoSent.then(update);
     setTimeout(function () {
         formValues(form,function(field){
             submission[field["name"]] = field["value"];
         });
     }, 2000);
     update();
-    $(".form-control").each(function(){
-        this.value = "";
-        this.checked = false;
-    });
+    form.reset();
 };
 
 let update = function update(){
     let orderDisplay = document.querySelector("#orderDisplay");
     orderDisplay.innerHTML = "";
-    let serverResponse = $.get(server);
+    let serverResponse = fetch(server);
     serverResponse.then(function(data){
-        orders = data;
-        if (Object.keys(orders).length > 0){
-            for (let orderName in orders){
-                createRow(orders[orderName],orderDisplay);
+        data.json().then(function(orders){
+            console.log(orders);
+            if (Object.keys(orders).length > 0){
+                for (let orderName in orders){
+                    createRow(orders[orderName],orderDisplay);
+                }
             }
-        }
-        else{
-            let displayItem = document.createElement("li");
-            displayItem.textContent = "No Orders";
-            orderDisplay.appendChild(displayItem);
-        }
+            else{
+                let displayItem = document.createElement("li");
+                displayItem.textContent = "No Orders";
+                orderDisplay.appendChild(displayItem);
+            }
+        });
     });
 };
 
