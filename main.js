@@ -56,7 +56,7 @@ let createRow = function createRow(order,display){
             deleteTimer = setTimeout(function(){
                 let deletePromise =  $.ajax({method:"DELETE",
                     url:server + "/" + order["emailAddress"]});
-                deletePromise.then = update;
+                deletePromise.then(update);
             }, 2000);
         }
         else{
@@ -93,7 +93,9 @@ let formSubmission =  function formSubmission(){
 let update = function update(){
     let orderDisplay = document.querySelector("#orderDisplay");
     orderDisplay.innerHTML = "";
-    $.get(server,function(data){
+    let serverResponse = $.get(server);
+    serverResponse.then(function(data){
+        orders = data;
         if (Object.keys(orders).length > 0){
             for (let orderName in orders){
                 createRow(orders[orderName],orderDisplay);
