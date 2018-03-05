@@ -33,8 +33,29 @@ $(window).on("load",function(){
     });
     // sessionStorage.clear();
 });
+<<<<<<< Updated upstream
 
 let form = document.querySelector(".form-container");
+=======
+let renderOrderDisplay = function renderOrderDisplay(){
+    for (let orderName in orders){
+        let order = orders[orderName];
+        getOrderTags(order);
+        let displayItem = document.createElement("li");
+        let displayItemInner = document.createElement("p");
+    }
+};
+// let createRow = function createRow
+let getOrderTags =  function getOrderTags(order){
+    let coffee = order["coffee"];
+    let emailAddress = order["emailAddress"];
+    let size = order["size"];
+    let flavor = order["flavor"];
+    let strength = order["strength"];
+    return `Email Address: ${emailAddress} Coffee: ${coffee} `+
+            `Flavor: ${flavor} Strength: ${strength} Size: ${size}`;
+}
+>>>>>>> Stashed changes
 
 
 let formSubmission =  function formSubmission(){
